@@ -1,71 +1,204 @@
-# Getting Started with Create React App
+# yallist
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+Yet Another Linked List
 
-## Available Scripts
+There are many doubly-linked list implementations like it, but this
+one is mine.
 
-In the project directory, you can run:
+For when an array would be too big, and a Map can't be iterated in
+reverse order.
 
-### `npm start`
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+[![Build Status](https://travis-ci.org/isaacs/yallist.svg?branch=master)](https://travis-ci.org/isaacs/yallist) [![Coverage Status](https://coveralls.io/repos/isaacs/yallist/badge.svg?service=github)](https://coveralls.io/github/isaacs/yallist)
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+## basic usage
 
-### `npm test`
+```javascript
+var yallist = require('yallist')
+var myList = yallist.create([1, 2, 3])
+myList.push('foo')
+myList.unshift('bar')
+// of course pop() and shift() are there, too
+console.log(myList.toArray()) // ['bar', 1, 2, 3, 'foo']
+myList.forEach(function (k) {
+  // walk the list head to tail
+})
+myList.forEachReverse(function (k, index, list) {
+  // walk the list tail to head
+})
+var myDoubledList = myList.map(function (k) {
+  return k + k
+})
+// now myDoubledList contains ['barbar', 2, 4, 6, 'foofoo']
+// mapReverse is also a thing
+var myDoubledListReverse = myList.mapReverse(function (k) {
+  return k + k
+}) // ['foofoo', 6, 4, 2, 'barbar']
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+var reduced = myList.reduce(function (set, entry) {
+  set += entry
+  return set
+}, 'start')
+console.log(reduced) // 'startfoo123bar'
+```
 
-### `npm run build`
+## api
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+The whole API is considered "public".
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+Functions with the same name as an Array method work more or less the
+same way.
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+There's reverse versions of most things because that's the point.
 
-### `npm run eject`
+### Yallist
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+Default export, the class that holds and manages a list.
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+Call it with either a forEach-able (like an array) or a set of
+arguments, to initialize the list.
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+The Array-ish methods all act like you'd expect.  No magic length,
+though, so if you change that it won't automatically prune or add
+empty spots.
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+### Yallist.create(..)
 
-## Learn More
+Alias for Yallist function.  Some people like factories.
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+#### yallist.head
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+The first node in the list
 
-### Code Splitting
+#### yallist.tail
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+The last node in the list
 
-### Analyzing the Bundle Size
+#### yallist.length
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+The number of nodes in the list.  (Change this at your peril.  It is
+not magic like Array length.)
 
-### Making a Progressive Web App
+#### yallist.toArray()
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+Convert the list to an array.
 
-### Advanced Configuration
+#### yallist.forEach(fn, [thisp])
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+Call a function on each item in the list.
 
-### Deployment
+#### yallist.forEachReverse(fn, [thisp])
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+Call a function on each item in the list, in reverse order.
 
-### `npm run build` fails to minify
+#### yallist.get(n)
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
-# Login
+Get the data at position `n` in the list.  If you use this a lot,
+probably better off just using an Array.
+
+#### yallist.getReverse(n)
+
+Get the data at position `n`, counting from the tail.
+
+#### yallist.map(fn, thisp)
+
+Create a new Yallist with the result of calling the function on each
+item.
+
+#### yallist.mapReverse(fn, thisp)
+
+Same as `map`, but in reverse.
+
+#### yallist.pop()
+
+Get the data from the list tail, and remove the tail from the list.
+
+#### yallist.push(item, ...)
+
+Insert one or more items to the tail of the list.
+
+#### yallist.reduce(fn, initialValue)
+
+Like Array.reduce.
+
+#### yallist.reduceReverse
+
+Like Array.reduce, but in reverse.
+
+#### yallist.reverse
+
+Reverse the list in place.
+
+#### yallist.shift()
+
+Get the data from the list head, and remove the head from the list.
+
+#### yallist.slice([from], [to])
+
+Just like Array.slice, but returns a new Yallist.
+
+#### yallist.sliceReverse([from], [to])
+
+Just like yallist.slice, but the result is returned in reverse.
+
+#### yallist.toArray()
+
+Create an array representation of the list.
+
+#### yallist.toArrayReverse()
+
+Create a reversed array representation of the list.
+
+#### yallist.unshift(item, ...)
+
+Insert one or more items to the head of the list.
+
+#### yallist.unshiftNode(node)
+
+Move a Node object to the front of the list.  (That is, pull it out of
+wherever it lives, and make it the new head.)
+
+If the node belongs to a different list, then that list will remove it
+first.
+
+#### yallist.pushNode(node)
+
+Move a Node object to the end of the list.  (That is, pull it out of
+wherever it lives, and make it the new tail.)
+
+If the node belongs to a list already, then that list will remove it
+first.
+
+#### yallist.removeNode(node)
+
+Remove a node from the list, preserving referential integrity of head
+and tail and other nodes.
+
+Will throw an error if you try to have a list remove a node that
+doesn't belong to it.
+
+### Yallist.Node
+
+The class that holds the data and is actually the list.
+
+Call with `var n = new Node(value, previousNode, nextNode)`
+
+Note that if you do direct operations on Nodes themselves, it's very
+easy to get into weird states where the list is broken.  Be careful :)
+
+#### node.next
+
+The next node in the list.
+
+#### node.prev
+
+The previous node in the list.
+
+#### node.value
+
+The data the node contains.
+
+#### node.list
+
+The list to which this node belongs.  (Null if it does not belong to
+any list.)
